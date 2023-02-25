@@ -60,19 +60,14 @@
     }
 
   };
-  class Minterm {
-    constructor(minterm) {
-      this.minterm = minterm;
-      this.binary = minterm.toString(2);
-      this.ones = 0;
-      this.binary.split("").forEach((bit) => {
-        if (bit == "1") {
-          this.ones++;
-        }
-      });
-    }
-  }
-  function quineMcCluskey(minterms) {
+  //------ QUINE-MCCLUSKEY ALGORITHM ------
+function quineMcCluskey(minterms) {
+  var theoreticalMax = Math.pow(2, variables);
+  if(minterms.length == 0)
+    return '';
+  if(minterms.length == theoreticalMax)
+    return '1';
+
   //convert minterms to binary and pad with zeros according to the number of variables
   const binaryMinterms = minterms.map(m => m.toString(2).padStart(variables, '0'));
   
@@ -227,7 +222,7 @@ function getExpressionFromPrimeImplicant(primeImplicant) {
   return expression;
 }
 
-  const QM = (minterms) => {
+//QM Algorithm
     //Convert minterms to binary
     //Create list for tableHistory
     //Create a dict for currGroups and nextGroups
@@ -278,7 +273,7 @@ function getExpressionFromPrimeImplicant(primeImplicant) {
     //Create solution string
     //Go through each essential prime implicant
       //Add prime implicant to solution string (translate 0001 and 0x02 to letters) //Add OR to solution string
-  };
+
   $:GetMintermsText = () => {
     let mintermsText = "";
     minterms.forEach((minterm) => {
@@ -294,8 +289,8 @@ function getExpressionFromPrimeImplicant(primeImplicant) {
 <!--<TopBar useMenu = {false}/>-->
 <ion-content id="router-content">
   <!-- Div that acts like a card-->
-  <div class="w-full h-full bg-gradient-to-r from-indigo-900 to-black flex flex-col justify-start items-center">
-    <div class="text-4xl py-3 m-3 px-16 rounded-3xl font-bold font-mono bg-gradient-to-r from-blue-600 to-green-600">Mr QM</div>
+  <div class="w-full h-full bg-gradient-to-r from-indigo-400 to-white dark:from-indigo-900 dark:to-black flex flex-col justify-start items-center">
+    <div class="text-4xl py-3 m-3 px-16 rounded-3xl font-bold font-mono bg-gradient-to-r from-blue-400 to-green-400 dark:from-blue-600 dark:to-green-600">Mr QM</div>
     <div class="w-90 h-90 card p-8 flex flex-col items-center">
       <div class="font-mono font-bold">Do you want a QM exercise?</div>
       <br/>
@@ -309,7 +304,7 @@ function getExpressionFromPrimeImplicant(primeImplicant) {
       {#if varsChosen}
       <br />
       <div class="font-mono">How many minterms?</div>
-      <div class="w-16 px-2 rounded-lg bg-gray-800">
+      <div class="w-16 px-2 rounded-lg bg-gray-200 dark:bg-gray-800">
       <ion-input bind:this={numMintermsInput} on:change={()=>mintermsUpdate()} type="number" min="1" max={Math.pow(2,variables)}></ion-input>
       </div>
       {#if mintermsChosen}
@@ -324,7 +319,7 @@ function getExpressionFromPrimeImplicant(primeImplicant) {
       {/if}
       {#if showSolution}
         <ion-label>Answer</ion-label>
-        <ion-label class="bg-gray-800 rounded-2xl p-2 m-2"> {currSolution} </ion-label>
+        <ion-label class="bg-gray-200 dark:bg-gray-800 rounded-2xl p-2 m-2"> {currSolution} </ion-label>
       {/if}
       <ion-button on:click={()=>NewOne()}>Another!</ion-button>
       {/if}
