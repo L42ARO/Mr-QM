@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@layer components{
+    .card{
+        /* Want to make a background that's black on dark mode and light on light mode*/
+        @apply bg-white dark:bg-black rounded-2xl
+    }
+}
