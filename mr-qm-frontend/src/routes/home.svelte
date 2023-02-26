@@ -190,6 +190,8 @@ function quineMcCluskey(minterms) {
           }
         }
         console.log(`Prime ${remainingPrimes[i]} covers ${coveredByI} minterms`)
+        //Skip if primes covered are 0
+        if(coveredByI==0) continue;
         if(coveredByI == coveredByV || coveredByI > coveredByV){
           //If remainingPriems[i] covers any minterm already in nonEssentialPrimes, remove the covered minterm from nonEssentialPrimes
           for(let x=0; x<nonEssentialPrimes.length; x++){
