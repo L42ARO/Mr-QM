@@ -56,7 +56,7 @@
       }
       //push
       minterms.push(newMinterm);
-      //minterms = [8,0,4,10,2,13,1,3,7,11]
+      //minterms = [6,9,7,0,8,10,14,11,5]
     }
 
   };
@@ -94,9 +94,10 @@ function quineMcCluskey(minterms) {
       if(!groups[i+1]){
         for (let j = 0; j < groups[i].length; j++) {
           if(!alreadyUsed.includes(groups[i][j])){
+            console.log(`Not found, adding; ${groups[i][j]}`)
+            console.log(`Already used: ${alreadyUsed}`)
             primeImplicants.push(groups[i][j]);
             alreadyUsed.push(groups[i][j]);
-            console.log(`Not found, adding; ${groups[i][j]}`)
           }
         }
         continue;
@@ -111,10 +112,11 @@ function quineMcCluskey(minterms) {
           if (diffIndex !== -1) {
             currTermPrime = false;
             const mergedTerm = group1[j].slice(0, diffIndex) + '-' + group1[j].slice(diffIndex + 1);
+            alreadyUsed.push(group1[j]);
+            alreadyUsed.push(group2[k]);
+            console.log(`Found, merging; ${group1[j]} and ${group2[k]}`)
             if (!merged.includes(mergedTerm)) {
               merged.push(mergedTerm);
-              alreadyUsed.push(group1[j]);
-              alreadyUsed.push(group2[k]);
             }
           }
         }
@@ -147,10 +149,21 @@ function quineMcCluskey(minterms) {
     }
     if (matchedPrimeImplicants.length === 1) {
       essentialPrimeImplicants.push(matchedPrimeImplicants[0]);
-      coveredMinterms.add(minterms[i]);
+      //Add all minterms covered by this prime implicant to the set of covered minterms
+      for (let j = 0; j < binaryMinterms.length; j++) {
+        if (coversMinterm(matchedPrimeImplicants[0], binaryMinterms[j])) {
+          coveredMinterms.add(binaryMinterms[j]);
+        }
+      }
+      //coveredMinterms.add(minterms[i]);
     }
   }
-  //Find non essential primes
+  //Get rid of duplicates in covered minterms
+  const coveredMTs = [...new Set(coveredMinterms)];
+  //Get rid of duplicates in essential primes
+  essentialPrimeImplicants = [...new Set(essentialPrimeImplicants)];
+  console.log(`Essential primes: ${essentialPrimeImplicants}`)
+  console.log(`Covered minterms: ${coveredMTs}`);
   //Create list to hold varaints of non essential primes
   let nonEssentialPrimes = [];
   if(essentialPrimeImplicants.length<minterms.length){
@@ -164,11 +177,41 @@ function quineMcCluskey(minterms) {
       //Go through other remaining primes that are not itself
       for(let v=0; v<remainingPrimes.length; v++){
         if(v==i) continue;
-        //Check if they are different
-        if(coversMinterm(remainingPrimes[i], remainingPrimes[v])|| remainingPrimes[i]==remainingPrimes[v]){
+        var coveredByI=0;
+        var coveredByV=0;
+        //Go through minterms
+        for (let j = 0; j < binaryMinterms.length; j++) {
+          if(coveredMTs.includes(binaryMinterms[j])) continue;
+          if (coversMinterm(remainingPrimes[i], binaryMinterms[j])) {
+            coveredByI++;
+          }
+          if (coversMinterm(remainingPrimes[v], binaryMinterms[j])) {
+            coveredByV++;
+          }
+        }
+        console.log(`Prime ${remainingPrimes[i]} covers ${coveredByI} minterms`)
+        if(coveredByI == coveredByV || coveredByI > coveredByV){
+          //If remainingPriems[i] covers any minterm already in nonEssentialPrimes, remove the covered minterm from nonEssentialPrimes
+          for(let x=0; x<nonEssentialPrimes.length; x++){
+            if(coversMinterm(remainingPrimes[i], nonEssentialPrimes[x])){
+              console.log(`Removed ${nonEssentialPrimes[x]} from nonEssentialPrimes`)
+              nonEssentialPrimes = nonEssentialPrimes.splice(x,1);
+            }
+          } 
           //Add prime i to list of non essential primes
           nonEssentialPrimes.push(remainingPrimes[i]);
-        }
+          //Add all minterms covered by this prime implicant to the set of covered minterms if they are not already covered
+          for (let j = 0; j < binaryMinterms.length; j++) {
+            if (coversMinterm(remainingPrimes[i], binaryMinterms[j]) && !coveredMTs.includes(binaryMinterms[j])) {
+              coveredMTs.push(binaryMinterms[j]);
+            }
+          }
+        }   
+
+        //if(coversMinterm(remainingPrimes[i], remainingPrimes[v])|| remainingPrimes[i]==remainingPrimes[v]){
+        //  //Add prime i to list of non essential primes
+        //  nonEssentialPrimes.push(remainingPrimes[i]);
+        //}
       }
     }
   }
